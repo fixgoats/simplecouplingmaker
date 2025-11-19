@@ -1,0 +1,9 @@
+build/
+debug-build/
+.cache/
+compile_commands.json
+log.txt
+err.txt
+env/
+*.json
+data/
