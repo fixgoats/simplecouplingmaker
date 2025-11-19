@@ -8,7 +8,7 @@ set(CMAKE_C_STANDARD 99)
 set(PROJECT_SOURCES
         main.cpp
 )
-set(MAIN_TARGET disp)
+set(MAIN_TARGET hamiltonian)
 
 add_executable(${MAIN_TARGET})
 target_sources(${MAIN_TARGET} PRIVATE ${PROJECT_SOURCES})
