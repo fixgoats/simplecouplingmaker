@@ -122,7 +122,6 @@ MatrixXd pointsToFiniteHamiltonian(const std::vector<Point> &points,
       }
     }
   }
-  std::cout << "got here\n";
   return finite_hamiltonian(points.size(), nb_info);
 }
 
