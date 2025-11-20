@@ -76,8 +76,6 @@ std::vector<Point> readPoints(const std::string &fname) {
   std::vector<std::string> allLines{std::istream_iterator<Line>(f),
                                     std::istream_iterator<Line>()};
   m = allLines.size();
-  // f.clear();
-  // f.seekg(0, std::ios::beg);
   std::vector<Point> M(m);
   for (u32 j = 0; j < m; j++) {
     std::istringstream stream(allLines[j]);
@@ -107,9 +105,6 @@ MatrixXd finite_hamiltonian(u32 n_points, const std::vector<Neighbour> &nbs) {
 MatrixXd pointsToFiniteHamiltonian(const std::vector<Point> &points,
                                    const kdt::KDTree<Point> &kdtree,
                                    f64 radius) {
-  /* This function creates a hamiltonian for a simple finite lattice.
-   * Can't exactly do a dispersion from this.
-   */
   std::vector<Neighbour> nb_info;
   for (size_t i = 0; i < points.size(); i++) {
     auto q = points[i];
