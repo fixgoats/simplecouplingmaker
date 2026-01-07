@@ -33,13 +33,12 @@
 namespace kdt {
 /** @brief k-d tree class.
  */
-template <class PointT>
-class KDTree {
+template <class PointT> class KDTree {
 public:
   /** @brief The constructors.
    */
   KDTree() : root_(nullptr) {};
-  KDTree(const std::vector<PointT>& points) : root_(nullptr) { build(points); }
+  KDTree(const std::vector<PointT> &points) : root_(nullptr) { build(points); }
 
   /** @brief The destructor.
    */
@@ -47,7 +46,7 @@ public:
 
   /** @brief Re-builds k-d tree.
    */
-  void build(const std::vector<PointT>& points) {
+  void build(const std::vector<PointT> &points) {
     clear();
 
     points_ = points;
@@ -71,7 +70,7 @@ public:
   bool validate() const {
     try {
       validateRecursive(root_, 0);
-    } catch (const Exception&) {
+    } catch (const Exception &) {
       return false;
     }
 
@@ -80,7 +79,7 @@ public:
 
   /** @brief Searches the nearest neighbor.
    */
-  int nnSearch(const PointT& query, double* minDist = nullptr) const {
+  int nnSearch(const PointT &query, double *minDist = nullptr) const {
     int guess;
     double _minDist = std::numeric_limits<double>::max();
 
@@ -94,7 +93,7 @@ public:
 
   /** @brief Searches k-nearest neighbors.
    */
-  std::vector<int> knnSearch(const PointT& query, int k) const {
+  std::vector<int> knnSearch(const PointT &query, int k) const {
     KnnQueue queue(k);
     knnSearchRecursive(query, root_, queue, k);
 
@@ -107,7 +106,7 @@ public:
 
   /** @brief Searches neighbors within radius from query.
    */
-  std::vector<int> radiusSearch(const PointT& query, double radius) const {
+  std::vector<int> radiusSearch(const PointT &query, double radius) const {
     std::vector<int> indices;
     radiusSearchRecursive(query, root_, indices, radius * radius);
     return indices;
@@ -124,7 +123,7 @@ public:
   /** @brief Searches neighbors within radius from query with metric dist_func.
    */
   template <class Func>
-  std::vector<int> genRadiusSearch(const PointT& query, double radius,
+  std::vector<int> genRadiusSearch(const PointT &query, double radius,
                                    Func dist_func) const {
     std::vector<int> indices;
     genRadiusSearchRecursive(query, root_, indices, radius, dist_func);
@@ -133,7 +132,7 @@ public:
 
   /** @brief Searches neighbors within or at radius from query.
    */
-  std::vector<int> radiusSearchInclusive(const PointT& query,
+  std::vector<int> radiusSearchInclusive(const PointT &query,
                                          double radius) const {
     std::vector<int> indices;
     radiusSearchInclusiveRecursive(query, root_, indices, radius * radius);
@@ -152,7 +151,7 @@ public:
    * dist_func.
    */
   template <class Func>
-  std::vector<int> genRadiusSearchInclusive(const PointT& query, double radius,
+  std::vector<int> genRadiusSearchInclusive(const PointT &query, double radius,
                                             Func dist_func) const {
     std::vector<int> indices;
     genRadiusSearchInclusiveRecursive(query, root_, indices, radius, dist_func);
@@ -167,7 +166,7 @@ private:
    */
   struct Node {
     int idx;       //!< index to the original point
-    Node* next[2]; //!< pointers to the child nodes
+    Node *next[2]; //!< pointers to the child nodes
     int axis;      //!< dimension's axis
 
     Node() : idx(-1), axis(-1) { next[0] = next[1] = nullptr; }
@@ -181,26 +180,25 @@ private:
 
   /** @brief Bounded priority queue.
    */
-  template <class T, class Compare = std::less<T>>
-  class BoundedPriorityQueue {
+  template <class T, class Compare = std::less<T>> class BoundedPriorityQueue {
   public:
     BoundedPriorityQueue() = delete;
     BoundedPriorityQueue(size_t bound) : bound_(bound) {
       elements_.reserve(bound + 1);
     };
 
-    void push(const T& val) {
+    void push(const T &val) {
       auto it = std::find_if(
           std::begin(elements_), std::end(elements_),
-          [&](const T& element) { return Compare()(val, element); });
+          [&](const T &element) { return Compare()(val, element); });
       elements_.insert(it, val);
 
       if (elements_.size() > bound_)
         elements_.resize(bound_);
     }
 
-    const T& back() const { return elements_.back(); };
-    const T& operator[](size_t index) const { return elements_[index]; }
+    const T &back() const { return elements_.back(); };
+    const T &operator[](size_t index) const { return elements_[index]; }
     size_t size() const { return elements_.size(); }
 
   private:
@@ -214,7 +212,7 @@ private:
 
   /** @brief Builds k-d tree recursively.
    */
-  Node* buildRecursive(int* indices, int npoints, int depth) {
+  Node *buildRecursive(int *indices, int npoints, int depth) {
     if (npoints <= 0)
       return nullptr;
 
@@ -226,7 +224,7 @@ private:
                        return points_[lhs][axis] < points_[rhs][axis];
                      });
 
-    Node* node = new Node();
+    Node *node = new Node();
     node->idx = indices[mid];
     node->axis = axis;
 
@@ -239,7 +237,7 @@ private:
 
   /** @brief Clears k-d tree recursively.
    */
-  void clearRecursive(Node* node) {
+  void clearRecursive(Node *node) {
     if (node == nullptr)
       return;
 
@@ -254,13 +252,13 @@ private:
 
   /** @brief Validates k-d tree recursively.
    */
-  void validateRecursive(const Node* node, int depth) const {
+  void validateRecursive(const Node *node, int depth) const {
     if (node == nullptr)
       return;
 
     const int axis = node->axis;
-    const Node* node0 = node->next[0];
-    const Node* node1 = node->next[1];
+    const Node *node0 = node->next[0];
+    const Node *node1 = node->next[1];
 
     if (node0 && node1) {
       if (points_[node->idx][axis] < points_[node0->idx][axis])
@@ -277,30 +275,30 @@ private:
       validateRecursive(node1, depth + 1);
   }
 
-  static double distance(const PointT& p, const PointT& q) {
+  static double distance(const PointT &p, const PointT &q) {
     double dist = 0;
     for (size_t i = 0; i < PointT::DIM; i++)
       dist += (p[i] - q[i]) * (p[i] - q[i]);
     return sqrt(dist);
   }
 
-  static double distanceSq(const PointT& p, const PointT& q) {
+  static double distanceSq(const PointT &p, const PointT &q) {
     double dist = 0;
     for (size_t i = 0; i < PointT::DIM; i++)
       dist += (p[i] - q[i]) * (p[i] - q[i]);
     return dist;
   }
 
-  static double sqnorm(const PointT& p) {
+  static double sqnorm(const PointT &p) {
     double norm = 0;
     for (size_t i = 0; i < PointT::DIM; i++)
       norm += p[i] * p[i];
     return norm;
   }
 
-  static double norm(const PointT& p) { return sqrt(sqnorm(p)); }
+  static double norm(const PointT &p) { return sqrt(sqnorm(p)); }
 
-  static double axisDistanceSq(const PointT& p, int axis) {
+  static double axisDistanceSq(const PointT &p, int axis) {
     if constexpr (PointT::DIM == 2) {
       return abs(p[1 - axis]);
     } else {
@@ -316,12 +314,12 @@ private:
 
   /** @brief Searches the nearest neighbor recursively.
    */
-  void nnSearchRecursive(const PointT& query, const Node* node, int* guess,
-                         double* minDist) const {
+  void nnSearchRecursive(const PointT &query, const Node *node, int *guess,
+                         double *minDist) const {
     if (node == nullptr)
       return;
 
-    const PointT& train = points_[node->idx];
+    const PointT &train = points_[node->idx];
 
     const double dist = distanceSq(query, train);
     if (dist < *minDist) {
@@ -340,12 +338,12 @@ private:
 
   /** @brief Searches k-nearest neighbors recursively.
    */
-  void knnSearchRecursive(const PointT& query, const Node* node,
-                          KnnQueue& queue, int k) const {
+  void knnSearchRecursive(const PointT &query, const Node *node,
+                          KnnQueue &queue, int k) const {
     if (node == nullptr)
       return;
 
-    const PointT& train = points_[node->idx];
+    const PointT &train = points_[node->idx];
 
     const double dist = distanceSq(query, train);
     queue.push(std::make_pair(dist, node->idx));
@@ -361,33 +359,33 @@ private:
 
   /** @brief Searches neighbors within radius.
    */
-  void radiusSearchRecursive(const PointT& query, const Node* node,
-                             std::vector<int>& indices, double radius) const {
+  void radiusSearchRecursive(const PointT &query, const Node *node,
+                             std::vector<int> &indices, double radiusSq) const {
     if (node == nullptr)
       return;
 
-    const PointT& train = points_[node->idx];
+    const PointT &train = points_[node->idx];
 
     const double dist = distanceSq(query, train);
-    if (dist < radius)
+    if (dist < radiusSq)
       indices.push_back(node->idx);
 
     const int axis = node->axis;
     const int dir = query[axis] < train[axis] ? 0 : 1;
-    radiusSearchRecursive(query, node->next[dir], indices, radius);
+    radiusSearchRecursive(query, node->next[dir], indices, radiusSq);
 
     const double diff = query[axis] - train[axis];
-    if (diff * diff < radius)
-      radiusSearchRecursive(query, node->next[!dir], indices, radius);
+    if (diff * diff < radiusSq)
+      radiusSearchRecursive(query, node->next[!dir], indices, radiusSq);
   }
 
-  void radiusSearchInclusiveRecursive(const PointT& query, const Node* node,
-                                      std::vector<int>& indices,
+  void radiusSearchInclusiveRecursive(const PointT &query, const Node *node,
+                                      std::vector<int> &indices,
                                       double radius) const {
     if (node == nullptr)
       return;
 
-    const PointT& train = points_[node->idx];
+    const PointT &train = points_[node->idx];
 
     const double dist = distanceSq(query, train);
     if (dist <= radius)
@@ -403,13 +401,13 @@ private:
   }
 
   template <class Func>
-  void genRadiusSearchRecursive(const PointT& query, const Node* node,
-                                std::vector<int>& indices, double radius,
+  void genRadiusSearchRecursive(const PointT &query, const Node *node,
+                                std::vector<int> &indices, double radius,
                                 Func dist_func) const {
     if (node == nullptr)
       return;
 
-    const PointT& train = points_[node->idx];
+    const PointT &train = points_[node->idx];
 
     const double dist = dist_func(query, train);
     if (dist < radius)
@@ -427,13 +425,13 @@ private:
   }
 
   template <class Func>
-  void genRadiusSearchInclusiveRecursive(const PointT& query, const Node* node,
-                                         std::vector<int>& indices,
+  void genRadiusSearchInclusiveRecursive(const PointT &query, const Node *node,
+                                         std::vector<int> &indices,
                                          double radius, Func dist_func) const {
     if (node == nullptr)
       return;
 
-    const PointT& train = points_[node->idx];
+    const PointT &train = points_[node->idx];
 
     const double dist = dist_func(query, train);
     if (dist <= radius)
@@ -452,12 +450,12 @@ private:
 
   /** @brief Searches points within distance from axis
    */
-  void axisSearchRecursive(const Node* node, std::vector<int>& indices,
+  void axisSearchRecursive(const Node *node, std::vector<int> &indices,
                            double distancesq, int ax) const {
     if (node == nullptr)
       return;
 
-    const PointT& train = points_[node->idx];
+    const PointT &train = points_[node->idx];
     const double dist = axisDistanceSq(train, ax);
     if (dist < distancesq)
       indices.push_back(node->idx);
@@ -476,12 +474,12 @@ private:
     }
   }
 
-  void axisSearchInclusiveRecursive(const Node* node, std::vector<int>& indices,
+  void axisSearchInclusiveRecursive(const Node *node, std::vector<int> &indices,
                                     double distancesq, int ax) const {
     if (node == nullptr)
       return;
 
-    const PointT& train = points_[node->idx];
+    const PointT &train = points_[node->idx];
     const double dist = axisDistanceSq(train, ax);
     if (dist <= distancesq)
       indices.push_back(node->idx);
@@ -503,7 +501,7 @@ private:
   /** @brief Finds point with lowest value along axis d. wtf þetta virkaði í svo
    * gott sem fyrstu atrennu!
    */
-  int axisFindMinRecursive(const Node* node, int ax) const {
+  int axisFindMinRecursive(const Node *node, int ax) const {
     if (!node->next[0] && !node->next[1])
       return node->idx;
 
@@ -539,7 +537,7 @@ private:
 
   /** @brief Finds point with highest value along axis d.
    */
-  int axisFindMaxRecursive(const Node* node, int ax) const {
+  int axisFindMaxRecursive(const Node *node, int ax) const {
     if (!node->next[0] && !node->next[1])
       return node->idx;
 
@@ -573,7 +571,7 @@ private:
     }
   }
 
-  Node* root_;                 //!< root node
+  Node *root_;                 //!< root node
   std::vector<PointT> points_; //!< points
 };
 } // namespace kdt
